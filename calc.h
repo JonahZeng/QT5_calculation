@@ -7,6 +7,9 @@
 #include <QLabel>
 #include <QString>
 #include <QStringList>
+#include <QTextEdit>
+#include <QQueue>
+#define LOG_LINE 10
 
 class PlusMinus : public QWidget {
 
@@ -36,11 +39,22 @@ class PlusMinus : public QWidget {
     void on_btnLeftBracket();
     void on_btnRightBracket();
   private:
+    QTextEdit* m_showLog;
+    QQueue<QString> m_log;
+
     QLabel *m_lbl; // real-time show input and result
     QString m_singleStr;  // stringlist <----- singlestr <----- input
     QStringList m_strList;
     unsigned short m_leftBkt_cnt; //input '(' count
     unsigned short m_rightBkt_cnt; //input ')' count
+
+    bool lastIsNum();
+    bool lastIsPoint();
+    bool lastIsOperator();
+    bool lastIsLeftBracket();
+    bool lastIsRightBracket();
+    bool lastIsNone(); //nothing input, all are empty
+    void flushLog(QString ch);
 };
 
-#endif // WIDGET_H
+#endif // CALC_H

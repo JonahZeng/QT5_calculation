@@ -2,7 +2,7 @@
 #include <QGridLayout>
 
 PlusMinus::PlusMinus(QWidget *parent)
-    : QWidget(parent), m_singleStr(""), m_strList(), m_leftBkt_cnt(0), m_rightBkt_cnt(0)
+    : QWidget(parent), m_log(), m_singleStr(""), m_strList(), m_leftBkt_cnt(0), m_rightBkt_cnt(0)
 {
     QPushButton* btn1 = new QPushButton("1", this);
     QPushButton* btn2 = new QPushButton("2", this);
@@ -26,35 +26,45 @@ PlusMinus::PlusMinus(QWidget *parent)
     QPushButton* btnRightbarcket = new QPushButton(")", this);
     m_lbl = new QLabel("0", this);
 
+    m_showLog = new QTextEdit("print operator warning here!", this);
+
     QGridLayout *grid = new QGridLayout(this);
+    grid->addWidget(m_lbl, 0, 0, 1, 5);
+
     grid->addWidget(btn7, 1, 0);
     grid->addWidget(btn8, 1, 1);
     grid->addWidget(btn9, 1, 2);
     grid->addWidget(btnLeftbarcket, 1, 3);
     grid->addWidget(btnRightbarcket, 1, 4);
+
     grid->addWidget(btn4, 2, 0);
     grid->addWidget(btn5, 2, 1);
     grid->addWidget(btn6, 2, 2);
     grid->addWidget(btnPlus, 2, 3);
     grid->addWidget(btnMins, 2, 4);
+
     grid->addWidget(btn1, 3, 0);
     grid->addWidget(btn2, 3, 1);
     grid->addWidget(btn3, 3, 2);
     grid->addWidget(btnMult, 3, 3);
     grid->addWidget(btnDiv, 3, 4);
+
     grid->addWidget(btn0, 4, 0);
     grid->addWidget(btnPt, 4, 1);
     grid->addWidget(btnClear, 4, 2);
-
     grid->addWidget(btnEqual, 4, 3);
 
-    grid->addWidget(m_lbl, 0, 0, 1, 5);
+    grid->addWidget(m_showLog, 5, 0, 1, 5);
+
     m_lbl->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-    m_lbl->setFrameStyle(QFrame::Box | QFrame::Plain);
+    m_lbl->setFrameStyle(QFrame::Box | QFrame::Panel);
+    m_showLog->setAlignment(Qt::AlignLeft);
+    m_showLog->setFrameStyle(QFrame::Panel | QFrame::Box);
+    m_showLog->setReadOnly(true);
+
     QFont ft= m_lbl->font();
     ft.setPointSize(16);
     m_lbl->setFont(ft);
-
 
     setLayout(grid);
 
@@ -88,143 +98,149 @@ void PlusMinus::on_btnEqual(){//input = , calc result
 }
 
 void PlusMinus::on_btnLeftBracket(){
-    if(!m_singleStr.isEmpty())// '(' must be after +-*/(, for these 5 case, the single str must be empty
-        return;
-    else if(m_strList.size() == 0){
-        m_strList<<QString("(");
-        m_singleStr.clear();
-        m_lbl->setText("(");
+    if(lastIsLeftBracket() || lastIsNone() || lastIsOperator()){
+        m_strList<<"(";
         m_leftBkt_cnt++;
+        m_lbl->setText(m_strList.join(""));
     }
-    else{
-        const QString str = m_strList.constLast();//get last string in stringlist, str list must not be empty
-        if(str=="+" || str=="-" || str=="*" || str=="/" || str=="("){
-            m_strList<<"(";
-            m_singleStr.clear();
-            m_lbl->setText(m_strList.join(""));
-            m_leftBkt_cnt++;
-        }
+    else if(lastIsNum() || lastIsRightBracket()){
+        flushLog("(");
     }
 }
 
 void PlusMinus::on_btnRightBracket(){
-    if(m_singleStr.isEmpty()){
-        if(m_strList.size() == 0)
-            return;
-        else{
-            const QString str = m_strList.constLast();
-            if(str=="(" || str=="+" || str=="-" || str=="*" || str=="/")
-                return;
-            else{
-                if(m_leftBkt_cnt <= m_rightBkt_cnt)
-                    return;
-                m_strList<<")";
-                m_lbl->setText(m_strList.join(""));
-                m_rightBkt_cnt++;
-            }
-        }
-    }
-    else{
-        if(m_singleStr.endsWith("."))
-            return;
-        else{
-            if(m_leftBkt_cnt <= m_rightBkt_cnt)
-                return;
+    if(lastIsNone() || lastIsLeftBracket() || lastIsPoint())
+        flushLog(")");
+    else if(lastIsNum()){
+        if(m_leftBkt_cnt>m_rightBkt_cnt){
             m_strList<<m_singleStr<<")";
+            m_rightBkt_cnt++;
             m_singleStr.clear();
             m_lbl->setText(m_strList.join(""));
-            m_rightBkt_cnt++;
         }
+        else
+            flushLog(")");
     }
 }
 void PlusMinus::on_btn1() {
-    if(m_singleStr.isEmpty() && m_strList.size()>0 && m_strList.constLast()==")")
-        return;
-    m_singleStr.append("1");
-    m_lbl->setText(m_strList.join("")+m_singleStr);
+    if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
+        m_singleStr.append("1");
+        m_lbl->setText(m_strList.join("")+m_singleStr);
+    }
+    else{
+        flushLog("1");
+    }
 }
 
 void PlusMinus::on_btn2() {
-    if(m_singleStr.isEmpty() && m_strList.size()>0 && m_strList.constLast()==")")
-        return;
-    m_singleStr.append("2");
-    m_lbl->setText(m_strList.join("")+m_singleStr);
+    if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
+        m_singleStr.append("2");
+        m_lbl->setText(m_strList.join("")+m_singleStr);
+    }
+    else{
+        flushLog("2");
+    }
 }
 
 void PlusMinus::on_btn3() {
-    if(m_singleStr.isEmpty() && m_strList.size()>0 && m_strList.constLast()==")")
-        return;
-    m_singleStr.append("3");
-    m_lbl->setText(m_strList.join("")+m_singleStr);
+    if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
+        m_singleStr.append("3");
+        m_lbl->setText(m_strList.join("")+m_singleStr);
+    }
+    else{
+        flushLog("3");
+    }
 }
 
 void PlusMinus::on_btn4() {
-    if(m_singleStr.isEmpty() && m_strList.size()>0 && m_strList.constLast()==")")
-        return;
-    m_singleStr.append("4");
-    m_lbl->setText(m_strList.join("")+m_singleStr);
+    if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
+        m_singleStr.append("4");
+        m_lbl->setText(m_strList.join("")+m_singleStr);
+    }
+    else{
+        flushLog("4");
+    }
 }
 
 void PlusMinus::on_btn5() {
-    if(m_singleStr.isEmpty() && m_strList.size()>0 && m_strList.constLast()==")")
-        return;
-    m_singleStr.append("5");
-    m_lbl->setText(m_strList.join("")+m_singleStr);
+    if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
+        m_singleStr.append("5");
+        m_lbl->setText(m_strList.join("")+m_singleStr);
+    }
+    else{
+        flushLog("5");
+    }
 }
 
 void PlusMinus::on_btn6() {
-    if(m_singleStr.isEmpty() && m_strList.size()>0 && m_strList.constLast()==")")
-        return;
-    m_singleStr.append("6");
-    m_lbl->setText(m_strList.join("")+m_singleStr);
+    if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
+        m_singleStr.append("6");
+        m_lbl->setText(m_strList.join("")+m_singleStr);
+    }
+    else{
+        flushLog("6");
+    }
 }
 
 void PlusMinus::on_btn7() {
-    if(m_singleStr.isEmpty() && m_strList.size()>0 && m_strList.constLast()==")")
-        return;
-    m_singleStr.append("7");
-    m_lbl->setText(m_strList.join("")+m_singleStr);
+    if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
+        m_singleStr.append("7");
+        m_lbl->setText(m_strList.join("")+m_singleStr);
+    }
+    else{
+        flushLog("7");
+    }
 }
 
 void PlusMinus::on_btn8() {
-    if(m_singleStr.isEmpty() && m_strList.size()>0 && m_strList.constLast()==")")
-        return;
-    m_singleStr.append("8");
-    m_lbl->setText(m_strList.join("")+m_singleStr);
+    if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
+        m_singleStr.append("8");
+        m_lbl->setText(m_strList.join("")+m_singleStr);
+    }
+    else{
+        flushLog("8");
+    }
 }
 
 void PlusMinus::on_btn9() {
-    if(m_singleStr.isEmpty() && m_strList.size()>0 && m_strList.constLast()==")")
-        return;
-    m_singleStr.append("9");
-    m_lbl->setText(m_strList.join("")+m_singleStr);
+    if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
+        m_singleStr.append("9");
+        m_lbl->setText(m_strList.join("")+m_singleStr);
+    }
+    else{
+        flushLog("9");
+    }
 }
 
 void PlusMinus::on_btn0() {
-    if(m_singleStr.isEmpty()){
-        if(m_strList.size()==0){
-            m_singleStr = "0";
-        }
-        else{
-            if(m_strList.constLast()==")")
-                return;
-        }
+    if(lastIsRightBracket()){
+        flushLog("0");
     }
-    else if(m_singleStr == "0")
+    else if(lastIsNone()){
         return;
-    else
+    }
+    else if(lastIsNum() || lastIsPoint()){
         m_singleStr.append("0");
-    m_lbl->setText(m_strList.join("")+m_singleStr);
+        m_lbl->setText(m_strList.join("")+m_singleStr);
+    }
+    else if(lastIsOperator() || lastIsLeftBracket()){
+        m_singleStr = "0";
+        m_lbl->setText(m_strList.join("")+m_singleStr);
+    }
 }
 
 void PlusMinus::on_btnPt(){
-    if(m_singleStr.contains('.'))
-        return;
-    else if(m_singleStr.isEmpty())
-        m_singleStr = "0.";
-    else
+    if(lastIsNum()){
+        if(m_singleStr.contains('.')){
+            flushLog(".");
+            return;
+        }
         m_singleStr.append(".");
-    m_lbl->setText(m_strList.join("")+m_singleStr);
+        m_lbl->setText(m_strList.join("")+m_singleStr);
+    }
+    else{
+        flushLog(".");
+    }
 }
 
 //press 'C', clear all, reset screen to '0'
@@ -236,39 +252,111 @@ void PlusMinus::on_btnClear(){
 
 //press '+', append last string to list, append "+" to list; clear single string;
 void PlusMinus::on_btnPlus(){
-    if(!m_singleStr.isEmpty())
+    if(lastIsNum()){
         m_strList<<m_singleStr<<"+";
-    else
+        m_singleStr.clear();
+        m_lbl->setText(m_strList.join(""));
+    }
+    else if(lastIsRightBracket()){
         m_strList<<"+";
-    m_singleStr.clear();
-    m_lbl->setText(m_strList.join(""));
+        m_lbl->setText(m_strList.join(""));
+    }
+    else{
+        flushLog("+");
+    }
 }
 
 void PlusMinus::on_btnMins(){
-    if(!m_singleStr.isEmpty())
+    if(lastIsNum()){
         m_strList<<m_singleStr<<"-";
-    else
+        m_singleStr.clear();
+        m_lbl->setText(m_strList.join(""));
+    }
+    else if(lastIsRightBracket() || lastIsNone()){
         m_strList<<"-";
-    m_singleStr.clear();
-    m_lbl->setText(m_strList.join(""));
+        m_lbl->setText(m_strList.join(""));
+    }
+    else{
+        flushLog("-");
+    }
 }
 
 void PlusMinus::on_btnMult(){
-    if(!m_singleStr.isEmpty())
+    if(lastIsNum() || lastIsRightBracket()){
         m_strList<<m_singleStr<<"*";
-    else
-        m_strList<<"*";
-    m_singleStr.clear();
-    m_lbl->setText(m_strList.join(""));
+        m_singleStr.clear();
+        m_lbl->setText(m_strList.join(""));
+    }
+    else{
+        flushLog("*");
+    }
 }
 
 void PlusMinus::on_btnDiv(){
-    if(!m_singleStr.isEmpty())
+    if(lastIsNum() || lastIsRightBracket()){
         m_strList<<m_singleStr<<"/";
-    else
-        m_strList<<"/";
-    m_singleStr.clear();
-    m_lbl->setText(m_strList.join(""));
+        m_singleStr.clear();
+        m_lbl->setText(m_strList.join(""));
+    }
+    else{
+        flushLog("/");
+    }
 }
 
+void PlusMinus::flushLog(QString ch){
+    if(m_log.size()>=LOG_LINE)
+        m_log.dequeue();
+    QString tmp("can not input \"%1\"here!");
+    m_log.enqueue(tmp.arg(ch));
+    m_showLog->setText(m_log.join("\n"));
+}
 
+/*
+below functions used for get input status
+*/
+bool PlusMinus::lastIsLeftBracket(){
+    if(m_singleStr.isEmpty() && m_strList.size()>0 && m_strList.constLast()=="(")
+        return true;
+    else
+        return false;
+}
+
+bool PlusMinus::lastIsRightBracket(){
+    if(m_singleStr.isEmpty() && m_strList.size()>0 && m_strList.constLast()==")")
+        return true;
+    else
+        return false;
+}
+
+bool PlusMinus::lastIsNum(){
+    if(m_singleStr.size()>0 && *(m_singleStr.rbegin())!='.')
+        return true;
+    else
+        return false;
+}
+
+bool PlusMinus::lastIsOperator(){
+    if(m_singleStr.isEmpty() && m_strList.size()>0){
+        const QString last = m_strList.constLast();
+        if(last=="+" || last=="-" || last=="*" || last=="/")
+            return true;
+        else
+            return false;
+    }
+    else
+        return false;
+}
+
+bool PlusMinus::lastIsNone(){
+    if(m_strList.size()==0 && m_singleStr.isEmpty())
+        return true;
+    else
+        return false;
+}
+
+bool PlusMinus::lastIsPoint(){
+    if(m_singleStr.size()>0 && m_singleStr.endsWith('.'))
+        return true;
+    else
+        return false;
+}
