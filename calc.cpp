@@ -139,6 +139,7 @@ void PlusMinus::on_btnEqual(){
             QString res;
             try{
                 res = calcPopOut(popOut);// note: reverse order
+                popOut.clear();
             }
             catch(DivZeroException& de){
                 flushLog(de.getMsg());
