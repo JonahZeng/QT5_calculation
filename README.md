@@ -9,3 +9,6 @@
 ## 基本算法
 ![图片](https://github.com/JonahZeng/QT5_calculation/blob/master/img/flow.PNG?raw=true)
 
+![图片](https://github.com/JonahZeng/QT5_calculation/blob/master/img/test_input.PNG?raw=true)
+
+![图片](https://github.com/JonahZeng/QT5_calculation/blob/master/img/test_out.PNG?raw=true)
