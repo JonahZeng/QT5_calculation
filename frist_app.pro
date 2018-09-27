@@ -8,6 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+#CONFIG += console
 TARGET = frist_app
 TEMPLATE = app
 
@@ -25,7 +26,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-    calc.cpp
+    calc.cpp \
+    divzeroexception.cpp
 
 HEADERS += \
-    calc.h
+    calc.h \
+    divzeroexception.h
