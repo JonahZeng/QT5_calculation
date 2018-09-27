@@ -1,14 +1,24 @@
 #ifndef CALC_H
 #define CALC_H
 
+#define DEBUG_MODE
+
+#ifdef DEBUG_MODE
+#include <QDebug>
+#endif
+
 #include <QWidget>
 #include <QApplication>
 #include <QPushButton>
 #include <QLabel>
-#include <QString>
+//#include <QString>
 #include <QStringList>
 #include <QTextEdit>
 #include <QQueue>
+#include <QTime>
+#include <QStack>
+#include "divzeroexception.h"
+
 #define LOG_LINE 10
 
 class PlusMinus : public QWidget {
@@ -55,6 +65,8 @@ class PlusMinus : public QWidget {
     bool lastIsRightBracket();
     bool lastIsNone(); //nothing input, all are empty
     void flushLog(QString ch);
+    QString calcPopOut(QStringList& popOut);// pop is reverse order
+    QString calcFinalOut(QStringList finalOut); // last string list, positive order
 };
 
 #endif // CALC_H
