@@ -1,2 +1,11 @@
-# QT5_-
-初学QT5练习
+# QT5_入门练习：计算器
+-------------------------------
+## 实现功能：
+* 实现加减乘除功能
+* 支持运算优先级
+* 支持'(',')'优先级
+* 支持输入错误检测
+
+## 基本算法
+![图片](https://github.com/JonahZeng/QT5_calculation/blob/master/img/flow.PNG?raw=true)
+
