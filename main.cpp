@@ -5,7 +5,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     PlusMinus window;
 
-    window.resize(500, 300);
+    window.resize(300, 500);
     window.setWindowTitle("calc");
     window.show();
 
