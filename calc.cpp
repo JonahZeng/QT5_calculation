@@ -1,34 +1,57 @@
 #include "calc.h"
 #include <QGridLayout>
+#include <QVBoxLayout>
 
 PlusMinus::PlusMinus(QWidget *parent)
     : QWidget(parent), m_log(), m_singleStr(""), m_strList(), m_leftBkt_cnt(0), m_rightBkt_cnt(0)
 {
     QPushButton* btn1 = new QPushButton("1", this);
+    btn1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btn2 = new QPushButton("2", this);
+    btn2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btn3 = new QPushButton("3", this);
+    btn3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btn4 = new QPushButton("4", this);
+    btn4->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btn5 = new QPushButton("5", this);
+    btn5->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btn6 = new QPushButton("6", this);
+    btn6->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btn7 = new QPushButton("7", this);
+    btn7->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btn8 = new QPushButton("8", this);
+    btn8->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btn9 = new QPushButton("9", this);
+    btn9->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btn0 = new QPushButton("0", this);
+    btn0->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btnPt = new QPushButton(".", this);
+    btnPt->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btnClear = new QPushButton("C", this);
+    btnClear->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btnPlus = new QPushButton("+", this);
+    btnPlus->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btnMins = new QPushButton("-", this);
+    btnMins->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btnMult = new QPushButton("x", this);
+    btnMult->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btnDiv = new QPushButton("/", this);
+    btnDiv->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btnEqual = new QPushButton("=", this);
+    btnEqual->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     QPushButton* btnLeftbarcket = new QPushButton("(", this);
+    btnLeftbarcket->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QPushButton* btnRightbarcket = new QPushButton(")", this);
+    btnRightbarcket->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_lbl = new QLabel("0", this);
 
     m_showLog = new QTextEdit("print operator warning here!", this);
 
     QGridLayout *grid = new QGridLayout(this);
+    grid->setHorizontalSpacing(8);
+    grid->setVerticalSpacing(8);
+
     grid->addWidget(m_lbl, 0, 0, 1, 5);
 
     grid->addWidget(btn7, 1, 0);
@@ -55,6 +78,24 @@ PlusMinus::PlusMinus(QWidget *parent)
     grid->addWidget(btnEqual, 4, 3);
 
     grid->addWidget(m_showLog, 5, 0, 1, 5);
+
+    grid->setRowStretch(0,1);
+    grid->setRowMinimumHeight(0,20);
+    grid->setRowStretch(1,1);
+    grid->setRowMinimumHeight(1,20);
+    grid->setRowStretch(2,1);
+    grid->setRowMinimumHeight(1,20);
+    grid->setRowStretch(3,1);
+    grid->setRowMinimumHeight(1,20);
+    grid->setRowStretch(4,1);
+    grid->setRowMinimumHeight(1,20);
+    grid->setRowStretch(5,1);
+
+    grid->setColumnStretch(0,1);
+    grid->setColumnStretch(1,1);
+    grid->setColumnStretch(2,1);
+    grid->setColumnStretch(3,1);
+    grid->setColumnStretch(4,1);
 
     m_lbl->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     m_lbl->setFrameStyle(QFrame::Box | QFrame::Panel);
@@ -164,15 +205,24 @@ void PlusMinus::on_btnEqual(){
     m_leftBkt_cnt = m_rightBkt_cnt = 0;
     try{
         m_lbl->setText(calcFinalOut(userInput.toList()));
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     catch(DivZeroException& de){
         flushLog(de.getMsg());
         m_lbl->setText("0");
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
         return;
     }
     catch(QException& ex){
         flushLog("no supported operator!");
         m_lbl->setText("0");
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
         return;
     }
 }
@@ -275,6 +325,9 @@ void PlusMinus::on_btnLeftBracket(){
         m_strList<<"(";
         m_leftBkt_cnt++;
         m_lbl->setText(m_strList.join(""));
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else if(lastIsNum() || lastIsRightBracket()){
         flushLog("can not input \"(\" now !");
@@ -290,6 +343,9 @@ void PlusMinus::on_btnRightBracket(){
             m_rightBkt_cnt++;
             m_singleStr.clear();
             m_lbl->setText(m_strList.join(""));
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
         }
         else
             flushLog("can not input \")\" now !");
@@ -299,6 +355,9 @@ void PlusMinus::on_btnRightBracket(){
             m_strList<<")";
             m_rightBkt_cnt++;
             m_lbl->setText(m_strList.join(""));
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
         }
         else
             flushLog("can not input \")\" now !");
@@ -308,6 +367,9 @@ void PlusMinus::on_btn1() {
     if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
         m_singleStr.append("1");
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"1\" now !");
@@ -318,6 +380,9 @@ void PlusMinus::on_btn2() {
     if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
         m_singleStr.append("2");
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"2\" now !");
@@ -328,6 +393,9 @@ void PlusMinus::on_btn3() {
     if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
         m_singleStr.append("3");
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"3\" now !");
@@ -338,6 +406,9 @@ void PlusMinus::on_btn4() {
     if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
         m_singleStr.append("4");
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"4\" now !");
@@ -348,6 +419,9 @@ void PlusMinus::on_btn5() {
     if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
         m_singleStr.append("5");
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"5\" now !");
@@ -358,6 +432,9 @@ void PlusMinus::on_btn6() {
     if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
         m_singleStr.append("6");
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"6\" now !");
@@ -368,6 +445,9 @@ void PlusMinus::on_btn7() {
     if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
         m_singleStr.append("7");
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"7\" now !");
@@ -378,6 +458,9 @@ void PlusMinus::on_btn8() {
     if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
         m_singleStr.append("8");
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"8\" now !");
@@ -388,6 +471,9 @@ void PlusMinus::on_btn9() {
     if(lastIsNone() || lastIsLeftBracket() || lastIsOperator() || lastIsNum() || lastIsPoint()){
         m_singleStr.append("9");
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"9\" now !");
@@ -404,10 +490,16 @@ void PlusMinus::on_btn0() {
     else if(lastIsNum() || lastIsPoint()){
         m_singleStr.append("0");
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else if(lastIsOperator() || lastIsLeftBracket()){
         m_singleStr = "0";
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
 }
 
@@ -419,10 +511,16 @@ void PlusMinus::on_btnPt(){
         }
         m_singleStr.append(".");
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else if(lastIsNone()){
         m_singleStr = "0.";
         m_lbl->setText(m_strList.join("")+m_singleStr);
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \".\" now !");
@@ -436,6 +534,9 @@ void PlusMinus::on_btnClear(){
     m_leftBkt_cnt = 0;
     m_rightBkt_cnt = 0;
     m_lbl->setText("0");
+#ifdef MACOS
+    m_lbl->repaint();
+#endif
 }
 
 //press '+', append last string to list, append "+" to list; clear single string;
@@ -444,10 +545,16 @@ void PlusMinus::on_btnPlus(){
         m_strList<<m_singleStr<<"+";
         m_singleStr.clear();
         m_lbl->setText(m_strList.join(""));
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else if(lastIsRightBracket()){
         m_strList<<"+";
         m_lbl->setText(m_strList.join(""));
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"+\" now !");
@@ -459,10 +566,16 @@ void PlusMinus::on_btnMins(){
         m_strList<<m_singleStr<<"-";
         m_singleStr.clear();
         m_lbl->setText(m_strList.join(""));
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else if(lastIsRightBracket() || lastIsNone() || lastIsLeftBracket()){
         m_strList<<"-";
         m_lbl->setText(m_strList.join(""));
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"-\" now !");
@@ -477,10 +590,16 @@ void PlusMinus::on_btnMult(){
         m_strList<<m_singleStr<<"*";
         m_singleStr.clear();
         m_lbl->setText(m_strList.join(""));
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else if(lastIsRightBracket()){
         m_strList<<"*";
         m_lbl->setText(m_strList.join(""));
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"*\" now !");
@@ -495,10 +614,16 @@ void PlusMinus::on_btnDiv(){
         m_strList<<m_singleStr<<"/";
         m_singleStr.clear();
         m_lbl->setText(m_strList.join(""));
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else if(lastIsRightBracket()){
         m_strList<<"*";
         m_lbl->setText(m_strList.join(""));
+#ifdef MACOS
+        m_lbl->repaint();
+#endif
     }
     else{
         flushLog("can not input \"/\" now !");
@@ -515,6 +640,9 @@ void PlusMinus::flushLog(QString ch){
     QString tmp("[%1]: %2");
     m_log.enqueue(tmp.arg(curTime).arg(ch));
     m_showLog->setText(m_log.join("\n"));
+#ifdef MACOS
+    m_showLog->repaint();
+#endif
 }
 
 /*

@@ -2,6 +2,7 @@
 #define CALC_H
 
 #define DEBUG_MODE
+#define MACOS
 
 #ifdef DEBUG_MODE
 #include <QDebug>
@@ -11,7 +12,6 @@
 #include <QApplication>
 #include <QPushButton>
 #include <QLabel>
-//#include <QString>
 #include <QStringList>
 #include <QTextEdit>
 #include <QQueue>
